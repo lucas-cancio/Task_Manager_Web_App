@@ -1,0 +1,82 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} Todo List {% endblock title %}
+
+{% block stylesheets %}
+
+{% endblock stylesheets %}
+
+{% block content %}
+
+    <!-- [ Main Content ] start -->
+    <div class="pcoded-main-container">
+        <div class="pcoded-wrapper">
+
+            <div class="pcoded-content">
+                <div class="pcoded-inner-content">
+
+                    <h1>Todo List of {{ current_user.username }}</h1>
+
+                    {% for root_task in task_hierarchy %}
+                        {% with node=root_task %}
+                            {% with hierarchy_depth=0 %}
+                                {% include 'includes/node.html' %}
+                            {% endwith %}
+                        {% endwith %}
+                        <br><br>    
+                    {% endfor %}
+
+
+                    <form action="{{ url_for('home_blueprint.add') }}" method="post">
+                        <label for="task">New Task</label> <br>
+                        <input type="text" id="task_title" name="task_title" required> </input> <br>
+                        <label for="task">Description</label> <br>
+                        <input type="text" id="task_description" name="task_description" required> </input> <br>
+                        <label for="task">Due</label> <br>
+                        <input type="datetime-local" id="due_date_time" name="due_date_time" required> </input> <br>
+                        <button type="submit">Add</button>
+                    </form>
+
+                    <a href="{{ url_for('authentication_blueprint.logout')}}">Sign Out</a>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <!-- [ Main Content ] end -->       
+{% endblock content %}
+
+{% block javascripts %}
+
+    <script type='text/javascript'>
+        $(document).ready(function(){
+            // Save data
+            $(".task_edit").focusout(function(){
+                
+                // Get task item info
+                var id = this.id;
+                var split_id = id.split("_");
+                var task_id = split_id[2];
+                var field_name = split_id[1];
+                var new_field_value = this.innerText;
+
+                $.ajax({
+                    url: '/edit',
+                    type: 'POST',
+                    data: { field:field_name, value:new_field_value, id:task_id },
+                    success:function(response){
+                    if(response == 1){ 
+                        console.log('Save successfully'); 
+                    }else{ 
+                        console.log("Not saved.");  
+                    }
+                    }
+                });
+            
+            });
+            
+        });
+    </script>
+
+{% endblock javascripts %}

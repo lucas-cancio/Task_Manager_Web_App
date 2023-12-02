@@ -1,0 +1,88 @@
+<div class="container-fluid">
+    <div style="margin-left:{{50 * hierarchy_depth}}px; border-style:solid; border-color:black; background-color:#343640; border-radius: 25px; padding:35px">
+
+        
+        <div class="row">
+            <div class="col-sm">
+                <div contenteditable class="task_edit" name="title" id="task_title_{{node.task.id}}">
+                    <h3>
+                        {{ node.task.title }} 
+                    </h3> 
+                </div>
+            </div>
+
+            <div class="col-sm">
+                <div class="row">
+                    <div contenteditable class="task_edit" name="progress" id="task_progress_{{node.task.id}}"> {{ node.task.progress }} </div>
+                </div>
+                <div class="row">
+                    <div contenteditable class="task_edit" name="due_date" id="task_duedate_{{node.task.id}}"> {{ node.task.due_date }} </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm">
+                <div contenteditable class="task_edit"  name="description" id="task_description_{{node.task.id}}"> {{ node.task.description }} </div>
+            </div>
+            <div class="col-sm">
+                <div><button id="task_{{node.task.id}}_open_create_subtask_menu_btn" onclick="toggle_create_subtask_menu({{node.task.id}})">Add Subtask</button></div>
+                <div><a href="{{ url_for('home_blueprint.delete', task_id=node.task.id) }}">[Delete]</a></div>
+            </div>
+
+        </div>
+        <script>
+            var toggle_create_subtask_menu = function(task_id) {
+                console.log("toggling create subtask menu for task " + task_id);
+                create_subtask_menu = document.getElementById("task_" + task_id + "_subtask_create_row");
+
+                create_subtask_menu.toggleAttribute("hidden");
+                document.getElementById("task_" + task_id + "_open_create_subtask_menu_btn").toggleAttribute("hidden");
+
+                if (create_subtask_menu.getAttribute("hidden") != "true"){
+                    //document.getElementById("task_" + task_id + "_subtask_create_form").reset();
+                    console.log("hidden is not true");
+                }
+            };
+        </script>
+    </div>
+</div>
+<div class="container-fluid" hidden id="task_{{node.task.id}}_subtask_create_row">
+    <div style="margin-left:{{50 * hierarchy_depth}}px; border-style:solid; border-color:black; background-color:#343640; border-radius: 25px; padding:35px">
+        <h6>New Subtask</h6>
+        <form action="{{ url_for('home_blueprint.add') }}" id="task_{{node.task.id}}_subtask_create_form" method="post">
+            <div>
+                
+            </div>
+            <div> 
+                <label for="task">Title</label>
+                <input type="text" id="task_title" name="task_title" required> </input>
+            </div>
+            <div> 
+                <label for="task">Description</label>
+                <input type="text" id="task_description" name="task_description" required> </input>
+            </div>
+            <div> 
+                <label for="task">Due Date</label>
+                <input type="datetime-local" id="due_date_time" name="due_date_time" required> </input>
+            </div>
+            <input hidden="true" type="integer" name="parent_task" value="{{node.task.id}}"></input>
+            <div>
+                <button type="submit">Create Subtask</button>
+            </div>
+            <div><button onclick="toggle_create_subtask_menu({{node.task.id}})">[Cancel]</button></div>
+        </form>
+    </div>
+</div>
+
+{% if node.children %}
+
+    {% for child in node.children %}
+        {% with node=child %}
+            {% with hierarchy_depth=hierarchy_depth+1 %}
+                {% include 'includes/node.html' %}
+            {% endwith %}
+        {% endwith %}
+        <br>
+    {% endfor %}
+
+{% endif %}
