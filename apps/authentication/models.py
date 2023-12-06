@@ -86,6 +86,7 @@ class Task(db.Model):
     title = db.Column(db.String(200), nullable=False)
     description = db.Column(db.String(300))
     progress = db.Column(db.String(200), default=Progress.NOT_STARTED.name)
+    progress_percent = db.Column(db.Float, default=0.0)
     parent_item_id = db.Column(db.Integer, db.ForeignKey('task.id'))
     due_date = db.Column(db.DateTime)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)

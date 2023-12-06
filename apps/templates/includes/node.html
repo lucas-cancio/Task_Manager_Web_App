@@ -1,9 +1,9 @@
 <div class="container-fluid">
-    <div style="margin-left:{{50 * hierarchy_depth}}px; border-style:solid; border-color:black; background-color:#343640; border-radius: 25px; padding:35px">
+    <div style="margin-left:{{200 * hierarchy_depth}}px; border-style:solid; border-color:black; background-color:#343640; border-radius: 25px; padding:25px">
 
         
         <div class="row">
-            <div class="col-sm">
+            <div class="col-8">
                 <div contenteditable class="task_edit" name="title" id="task_title_{{node.task.id}}">
                     <h3>
                         {{ node.task.title }} 
@@ -11,28 +11,52 @@
                 </div>
             </div>
 
-            <div class="col-sm">
-                <div class="row">
-                    <div contenteditable class="task_edit" name="progress" id="task_progress_{{node.task.id}}"> {{ node.task.progress }} </div>
-                </div>
-                <div class="row">
-                    <div contenteditable class="task_edit" name="due_date" id="task_duedate_{{node.task.id}}"> {{ node.task.due_date }} </div>
-                </div>
+            <div class="col-2">
+                <div contenteditable class="task_edit" name="due_date" id="task_duedate_{{node.task.id}}"> {{ node.task.due_date }} </div>
+            </div>
+
+            <div class="col-2">
+                {% if node.children %}
+                    <div>
+                        <h7 id="task_progress_percent_{{node.task.id}}">{{node.task.progress_percent}}%</h7>
+                        <h7>Completed</h7>
+                    </div>
+                {% else %}
+                    <select class="progress_select form-control" name="progress" id="task_progress_{{node.task.id}}" value="{{node.task.progress}}"> 
+                        <option value="Not Started" {% if node.task.progress == "Not Started" %} selected {% endif%}>Not Started</option>
+                        <option value="Completed" {% if node.task.progress == "Completed" %} selected {% endif%}>Completed</option>
+                    </select>
+                {% endif %}
             </div>
         </div>
         <div class="row">
             <div class="col-sm">
                 <div contenteditable class="task_edit"  name="description" id="task_description_{{node.task.id}}"> {{ node.task.description }} </div>
             </div>
-            <div class="col-sm">
-                <div><button id="task_{{node.task.id}}_open_create_subtask_menu_btn" onclick="toggle_create_subtask_menu({{node.task.id}})">Add Subtask</button></div>
-                <div><a href="{{ url_for('home_blueprint.delete', task_id=node.task.id) }}">[Delete]</a></div>
-            </div>
-
         </div>
+        <div class="row justify-content-end" style="padding-right: 15px;">
+            <div class="col-3 align-self-end">
+                <div class="row justify-content-end">
+                    <div>
+                        <button id="task_{{node.task.id}}_open_create_subtask_menu_btn" onclick="toggle_create_subtask_menu({{node.task.id}})" style="background: transparent">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="green" class="bi bi-plus-lg" viewBox="0 0 16 16">
+                                <path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <div style="border-style: outset; border-color: black; border-width: 2px; padding: 0px 4px 0px 4px">
+                        <a href="{{ url_for('home_blueprint.delete', task_id=node.task.id) }}">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="red" class="bi bi-x" viewBox="0 0 16 16">
+                                <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"/>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <script>
             var toggle_create_subtask_menu = function(task_id) {
-                console.log("toggling create subtask menu for task " + task_id);
                 create_subtask_menu = document.getElementById("task_" + task_id + "_subtask_create_row");
 
                 create_subtask_menu.toggleAttribute("hidden");
@@ -46,9 +70,9 @@
         </script>
     </div>
 </div>
-<div class="container-fluid" hidden id="task_{{node.task.id}}_subtask_create_row">
+<div class="container-fluid" hidden id="task_{{node.task.id}}_subtask_create_row" style="margin-left:{{50 * (hierarchy_depth + 1)}}px;"">
     <div style="margin-left:{{50 * hierarchy_depth}}px; border-style:solid; border-color:black; background-color:#343640; border-radius: 25px; padding:35px">
-        <h6>New Subtask</h6>
+        <h5>New Subtask</h5>
         <form action="{{ url_for('home_blueprint.add') }}" id="task_{{node.task.id}}_subtask_create_form" method="post">
             <div>
                 
@@ -66,10 +90,22 @@
                 <input type="datetime-local" id="due_date_time" name="due_date_time" required> </input>
             </div>
             <input hidden="true" type="integer" name="parent_task" value="{{node.task.id}}"></input>
-            <div>
-                <button type="submit">Create Subtask</button>
+            <div class="row" style="padding-left: 50px;">
+                <div>
+                    <button type="submit" style="background: transparent">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="green" class="bi bi-check-lg" viewBox="0 0 16 16">
+                            <path d="M12.736 3.97a.733.733 0 0 1 1.047 0c.286.289.29.756.01 1.05L7.88 12.01a.733.733 0 0 1-1.065.02L3.217 8.384a.757.757 0 0 1 0-1.06.733.733 0 0 1 1.047 0l3.052 3.093 5.4-6.425a.247.247 0 0 1 .02-.022"/>
+                        </svg>
+                    </button>
+                </div>
+                <div>
+                    <button onclick="toggle_create_subtask_menu({{node.task.id}})" style="background: transparent">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="red" class="bi bi-x" viewBox="0 0 16 16">
+                            <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"/>
+                        </svg>
+                    </button>
+                </div>
             </div>
-            <div><button onclick="toggle_create_subtask_menu({{node.task.id}})">[Cancel]</button></div>
         </form>
     </div>
 </div>
@@ -78,11 +114,11 @@
 
     {% for child in node.children %}
         {% with node=child %}
+            <br>
             {% with hierarchy_depth=hierarchy_depth+1 %}
                 {% include 'includes/node.html' %}
             {% endwith %}
         {% endwith %}
-        <br>
     {% endfor %}
 
 {% endif %}

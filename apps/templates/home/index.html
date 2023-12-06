@@ -23,7 +23,7 @@
                                 {% include 'includes/node.html' %}
                             {% endwith %}
                         {% endwith %}
-                        <br><br>    
+                        <br><br>
                     {% endfor %}
 
 
@@ -53,7 +53,7 @@
         $(document).ready(function(){
             // Save data
             $(".task_edit").focusout(function(){
-                
+                console.log("Focus out");
                 // Get task item info
                 var id = this.id;
                 var split_id = id.split("_");
@@ -71,6 +71,31 @@
                     }else{ 
                         console.log("Not saved.");  
                     }
+                    }
+                });
+            
+            });
+
+            // Update progress status of task
+            $(".progress_select").change(function(){
+                // Get task item info
+                var id = this.id;
+                var split_id = id.split("_");
+                var task_id = split_id[2];
+                var field_name = split_id[1];
+                var new_field_value = this.value;
+
+                $.ajax({
+                    url: '/edit',
+                    type: 'POST',
+                    data: { field:field_name, value:new_field_value, id:task_id },
+                    success:function(response){
+
+                        task_id_to_progress_percent = response;
+
+                        for (const task_id in task_id_to_progress_percent) {                            
+                            $("#task_progress_percent_" + task_id).text(task_id_to_progress_percent[task_id] + "%");
+                        }
                     }
                 });
             
